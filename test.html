@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Diagnostic</title>
+<style>
+body { background: #06050a; color: #fff; font-family: sans-serif; margin: 0; }
+#panel-container { display: none; width: 100%; height: 100vh; overflow: hidden; }
+#log { position: fixed; bottom: 10px; left: 10px; right: 10px; background: rgba(0,0,0,0.9); color: #0f0; padding: 20px; font-family: monospace; font-size: 13px; z-index: 9999; max-height: 40vh; overflow-y: auto; border: 1px solid #0f0; border-radius: 8px; }
+.log-error { color: #f44; }
+.log-ok { color: #0f0; }
+.log-warn { color: #ff0; }
+</style>
+</head>
+<body>
+<div id="log"></div>
+<script>
+var logEl = document.getElementById('log');
+function log(msg, type) {
+  var line = document.createElement('div');
+  line.className = type || '';
+  line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+  console.log(msg);
+}
+
+log('=== Dashboard Diagnostic ===');
+log('1. Testing panel-container visibility...');
+
+var panel = document.getElementById('panel-container');
+log('panel-container exists: ' + !!panel, panel ? 'log-ok' : 'log-error');
+log('panel-container display: ' + (panel ? getComputedStyle(panel).display : 'N/A'));
+
+// Simulate what init() does
+log('2. Setting panel display to flex...');
+if (panel) panel.style.display = 'flex';
+log('panel-container display now: ' + getComputedStyle(panel).display, 'log-ok');
+
+// Check if main content elements exist
+log('3. Checking content elements...');
+var checks = [
+  ['page-dashboard', 'page-dashboard'],
+  ['stat-total-keys', 'stat-total-keys'],
+  ['stat-active-users', 'stat-active-users'],
+  ['recent-activations-body', 'recent-activations-body'],
+  ['keys-table-body', 'keys-table-body'],
+  ['content-area', 'content-area'],
+  ['main-wrapper', 'main-wrapper']
+];
+checks.forEach(function(c) {
+  var el = document.getElementById(c[1]);
+  var vis = el ? getComputedStyle(el).display : 'N/A';
+  var parent = el ? el.parentElement : null;
+  var parentVis = parent ? getComputedStyle(parent).display : 'N/A';
+  log(c[0] + ': exists=' + !!el + ' display=' + vis + ' parent-display=' + parentVis, el ? 'log-ok' : 'log-error');
+});
+
+// Test Supabase fetch
+log('4. Testing Supabase connection...');
+var url = 'https://tlkhvzlvvlwzptbjguye.supabase.co/rest/v1/keys?select=id&limit=1';
+var key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRsa2h2emx2dmx3enB0YmpndXllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNzExOTksImV4cCI6MjEwMjg0NzE5OX0.2R-hYRmDnMJlsNZg68lqUtLIiZZjf5n0yaBAsP01FRU';
+
+fetch(url, {
+  headers: { 'apikey': key, 'Authorization': 'Bearer ' + key }
+}).then(function(r) {
+  log('Supabase response: ' + r.status + ' ' + r.statusText, r.ok ? 'log-ok' : 'log-error');
+  return r.json();
+}).then(function(data) {
+  log('Supabase data: ' + JSON.stringify(data), 'log-ok');
+}).catch(function(err) {
+  log('Supabase ERROR: ' + err.message, 'log-error');
+});
+
+// Check if app.js loaded
+log('5. Checking app object...');
+log('typeof app: ' + typeof app, typeof app !== 'undefined' ? 'log-ok' : 'log-error');
+if (typeof app !== 'undefined') {
+  log('app.init exists: ' + (typeof app.init === 'function'), 'log-ok');
+}
+
+// Check for JS errors
+window.onerror = function(msg, url, line, col, err) {
+  log('JS ERROR: ' + msg + ' at line ' + line + ':' + col, 'log-error');
+};
+</script>
+</body>
+</html>

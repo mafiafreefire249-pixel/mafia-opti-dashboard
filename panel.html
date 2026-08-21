@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mafia Opti+ | Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+</head>
+<body>
+  <canvas id="panel-particles"></canvas>
+  <div id="panel-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        Mafia Opti+<span class="sidebar-badge">ADMIN</span>
+      </div>
+      <div class="sidebar-version">v1.0.0</div>
+      <nav class="sidebar-nav">
+        <div class="nav-item active" data-page="dashboard">
+          <span class="nav-icon">📊</span>
+          <span>Dashboard</span>
+        </div>
+        <div class="nav-item" data-page="keys">
+          <span class="nav-icon">🔑</span>
+          <span>License Keys</span>
+        </div>
+        <div class="nav-item" data-page="bans">
+          <span class="nav-icon">🚫</span>
+          <span>Bans</span>
+        </div>
+        <div class="nav-item" data-page="settings">
+          <span class="nav-icon">⚙️</span>
+          <span>Settings</span>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="admin-info">
+          <div class="admin-avatar">A</div>
+          <div class="admin-details">
+            <span class="admin-name">Admin</span>
+            <span class="admin-role">Administrator</span>
+          </div>
+        </div>
+        <button class="logout-btn" id="logout-btn">
+          <span>🚪</span>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main-wrapper">
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="btn-ghost" id="sidebar-toggle" style="display:none;font-size:1.2rem;">☰</button>
+          <span class="topbar-title" id="page-title">Dashboard</span>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-search">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="global-search" placeholder="Search...">
+          </div>
+          <div class="server-pill" id="server-status-pill">
+            <span class="status-dot-sm"></span>
+            <span id="server-status-text">Online</span>
+          </div>
+          <div class="admin-avatar">A</div>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <div class="content-area" id="content-area">
+
+        <!-- Dashboard Page -->
+        <div class="page active" id="page-dashboard">
+          <div class="stats-grid">
+            <div class="stat-card stat-keys">
+              <div class="stat-icon">🔑</div>
+              <div class="stat-value" id="stat-total-keys">0</div>
+              <div class="stat-label">Total Keys</div>
+              <div class="stat-glow"></div>
+            </div>
+            <div class="stat-card stat-users">
+              <div class="stat-icon">👥</div>
+              <div class="stat-value" id="stat-active-users">0</div>
+              <div class="stat-label">Active Users</div>
+              <div class="stat-glow"></div>
+            </div>
+            <div class="stat-card stat-banned">
+              <div class="stat-icon">🚫</div>
+              <div class="stat-value" id="stat-banned-users">0</div>
+              <div class="stat-label">Banned Users</div>
+              <div class="stat-glow"></div>
+            </div>
+            <div class="stat-card stat-today">
+              <div class="stat-icon">⚡</div>
+              <div class="stat-value" id="stat-today-activations">0</div>
+              <div class="stat-label">Today</div>
+              <div class="stat-glow"></div>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="table-header">
+              <h3>Recent Activations</h3>
+              <button class="btn btn-secondary btn-sm" onclick="app.navigate('keys')">View All Keys →</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Key</th>
+                    <th>HWID</th>
+                    <th>Token</th>
+                    <th>Country</th>
+                    <th>OS</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-activations-body">
+                  <tr><td colspan="7" class="empty-state"><div class="empty-icon">📭</div>No recent activations</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <h3>Weekly Activity</h3>
+            <div class="bar-chart" id="activity-chart"></div>
+          </div>
+        </div>
+
+        <!-- Keys Page -->
+        <div class="page" id="page-keys">
+          <div class="page-top-bar">
+            <h2>License Keys</h2>
+            <button class="btn btn-primary" id="generate-key-btn">+ Generate Key</button>
+          </div>
+          <div class="table-card">
+            <div class="table-header">
+              <div class="table-actions">
+                <div class="search-box">
+                  <span class="search-icon-sm">🔍</span>
+                  <input type="text" id="keys-search" placeholder="Search keys...">
+                </div>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Key</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Expires</th>
+                    <th>Activations</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="keys-table-body">
+                  <tr><td colspan="6" class="empty-state"><div class="spinner"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="table-footer">
+              <span id="keys-info">Showing 0 keys</span>
+              <div class="pagination" id="keys-pagination"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bans Page -->
+        <div class="page" id="page-bans">
+          <div class="page-top-bar">
+            <h2>Banned Users</h2>
+            <button class="btn btn-danger" id="ban-user-btn">+ Ban User</button>
+          </div>
+          <div class="table-card">
+            <div class="table-header">
+              <div class="table-actions">
+                <div class="search-box">
+                  <span class="search-icon-sm">🔍</span>
+                  <input type="text" id="bans-search" placeholder="Search bans...">
+                </div>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Target</th>
+                    <th>Type</th>
+                    <th>Reason</th>
+                    <th>Banned By</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="bans-table-body">
+                  <tr><td colspan="7" class="empty-state"><div class="spinner"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="table-footer">
+              <span id="bans-info">Showing 0 bans</span>
+              <div class="pagination" id="bans-pagination"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div class="page" id="page-settings">
+          <div class="settings-grid">
+            <div class="settings-section">
+              <div class="settings-icon">🔐</div>
+              <h3>Admin Password</h3>
+              <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" id="settings-current-password" placeholder="Enter current password">
+              </div>
+              <div class="form-group">
+                <label>New Password</label>
+                <input type="password" id="settings-new-password" placeholder="Enter new password">
+              </div>
+              <div class="form-group">
+                <label>Confirm New Password</label>
+                <input type="password" id="settings-confirm-password" placeholder="Confirm new password">
+              </div>
+              <button class="btn btn-primary" id="change-password-btn">Update Password</button>
+            </div>
+
+            <div class="settings-section">
+              <div class="settings-icon">🌐</div>
+              <h3>API Configuration</h3>
+              <div class="form-group">
+                <label>API Base URL</label>
+                <input type="text" id="settings-api-url" value="http://localhost:3001">
+              </div>
+              <button class="btn btn-primary" id="save-api-url-btn">Save URL</button>
+              <div class="settings-sep"></div>
+              <div class="settings-row">
+                <div class="setting-info">
+                  <h4>Server Status</h4>
+                  <p>Backend connection status</p>
+                </div>
+                <div class="server-status" id="server-status">
+                  <span class="status-dot"></span>
+                  Checking...
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="setting-info">
+                  <h4>Auto Refresh</h4>
+                  <p>Refresh data every 30 seconds</p>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="refresh-toggle">ON</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generate Key Modal -->
+  <div class="modal-overlay" id="modal-generate-key">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>🔑 Generate New Key</h3>
+        <button class="modal-close" onclick="app.closeModal('modal-generate-key')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Duration (days)</label>
+            <input type="number" id="gen-key-duration" placeholder="e.g. 30" min="1">
+          </div>
+          <div class="form-group">
+            <label>Max HWIDs</label>
+            <input type="number" id="gen-key-hwids" value="1" min="1" max="100">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Expiry Date (optional)</label>
+          <input type="date" id="gen-key-expiry">
+        </div>
+        <div class="form-group">
+          <label>Generated By</label>
+          <input type="text" id="gen-key-generated-by" placeholder="Admin" value="Admin">
+        </div>
+        <div id="gen-key-result" style="display:none;">
+          <div class="generated-key-display">
+            <div class="gen-key-label">Generated Key</div>
+            <div class="key-value" id="gen-key-value"></div>
+            <div class="copy-hint">Click to copy</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeModal('modal-generate-key')">Close</button>
+        <button class="btn btn-primary" id="gen-key-submit">Generate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ban User Modal -->
+  <div class="modal-overlay" id="modal-ban-user">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>🚫 Ban User</h3>
+        <button class="modal-close" onclick="app.closeModal('modal-ban-user')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Target</label>
+          <input type="text" id="ban-target" placeholder="HWID, username, user ID, or IP">
+        </div>
+        <div class="form-group">
+          <label>Target Type</label>
+          <select id="ban-target-type">
+            <option value="hwid">HWID</option>
+            <option value="username">Username</option>
+            <option value="user_id">User ID</option>
+            <option value="ip">IP Address</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Reason</label>
+          <textarea id="ban-reason" placeholder="Reason for ban..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeModal('modal-ban-user')">Cancel</button>
+        <button class="btn btn-danger" id="ban-submit">Ban User</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Detail Modal -->
+  <div class="modal-overlay" id="modal-key-detail">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <h3>👁️ Key Details</h3>
+        <button class="modal-close" onclick="app.closeModal('modal-key-detail')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="key-detail-header">
+          <span id="detail-key-value" class="key-text"></span>
+          <span id="detail-key-status"></span>
+        </div>
+        <div class="activations-list" id="detail-activations-list">
+          <div class="empty-state"><div class="empty-icon">📭</div>No activations found</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeModal('modal-key-detail')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-overlay confirm-modal" id="modal-confirm">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="confirm-title">Are you sure?</h3>
+        <button class="modal-close" onclick="app.closeModal('modal-confirm')">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align:center;">
+        <div class="confirm-icon" id="confirm-icon">⚠️</div>
+        <p id="confirm-message">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer" style="justify-content:center;">
+        <button class="btn btn-secondary" onclick="app.closeModal('modal-confirm')">Cancel</button>
+        <button class="btn btn-danger" id="confirm-action">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
